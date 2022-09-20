@@ -3,12 +3,10 @@ package TTT_Phase1;
 public class Box {
     private int row;
     private int col;
-    private String placeHolder = "-";
+    private final static String DASH = "-";
+    private String placeHolder = Box.DASH;
     boolean isAvailable(){
-        if(this.getPlaceHolder() == placeHolder){
-            return true;
-        }
-        return false;
+        return placeHolder.equals(Box.DASH);
     }
     public Box(int row, int col) {
         this.row = row;
@@ -19,8 +17,12 @@ public class Box {
         return placeHolder;
     }
 
-    public void setPlaceHolder(String placeHolder) {
-        this.placeHolder = placeHolder;
+    public boolean setPlaceHolder(String placeHolder) {
+        if(isAvailable()) {
+            this.placeHolder = placeHolder;
+            return true;
+        }
+        return false;
     }
 
     void print(){

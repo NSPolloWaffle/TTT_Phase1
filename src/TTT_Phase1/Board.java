@@ -7,17 +7,19 @@ public class Board {
     private String name;
 
     Board() {
-        setRow(3);
-        setCol(3);
-        setName("TTT");
-        init();
+        this.setName("Tic Tac Toe");
+        this.setSize(3,3);
+    }
+    Board(int row, int col, String name) {
+        this.setName(name);
+        this.setSize(row,col);
     }
     String getMark(int index){
         return boxes[index].getPlaceHolder();
     }
     private void setSize(int row, int col) {
         if(row < 3 || col < 3) {
-            System.out.println("min board size is 3");
+            System.out.println("Min board size is 3");
         }
         else {
             this.setCol(col);
@@ -34,16 +36,12 @@ public class Board {
         }
     }
 
-    boolean move(int r, int c, String mark){
-        if(boxes[(r * 3) + c].getPlaceHolder() == "-"){
-            boxes[(r * 3) + c].setPlaceHolder(mark);
-            return true;
-        }
-            return false;
+    boolean makeMove(int r, int c, String mark){
+        return boxes[(r * 3) + c].setPlaceHolder(mark);
     }
 
     void print(){
-        System.out.println("Printing the board info...");
+        System.out.println("Printing the " + name + " board...");
         for(int i = 0; i < boxes.length; i++){
             if(i % col == 0 && i/col != 0) {
                 System.out.println();
@@ -59,13 +57,6 @@ public class Board {
             }
         }
         return true;
-    }
-
-    public Board(int row, int col, String name) {
-        this.row= row;
-        this.col = col;
-        this.name = name;
-        init();
     }
 
     public int getRow() {

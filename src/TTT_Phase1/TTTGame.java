@@ -2,43 +2,42 @@ package TTT_Phase1;
 import java.util.*;
 
 public class TTTGame {
-    private Player p1 = new Player("Player X", "X");
-    private Player p2 = new Player("Player O", "O");
-
+    Player[] players = new Player[2];
+    private String[] marks = {"X", "O"};
+    private int row = 3;
+    private int col = 3;
+    private String name = "Tic Tac Toe";
     Board board = new Board();
-    void setPlayer(String name, String mark){
-        if(p1 == null){
-            p1.setName(name);
-            p1.setMark(mark);
-        }
-        else{
-            p2.setName(name);
-            p2.setMark(mark);
-        }
+
+    public TTTGame() {
+        setPlayer();
+        setBoard();
+        start();
     }
-    void switchPlayers(){
-        Player temp = p1;
-        p1 = p2;
-        p2 = temp;
+    public TTTGame(int row, int col){
+        this.row = row;
+        this.col = col;
+        setPlayer();
+        setBoard();
+        start();
     }
-    boolean gameOver(Board b, Player p1, Player p2){
-        if(isWinner(b,p1) || isWinner(b,p2) || b.isFull()){
-            System.out.println(b.isFull());
+    boolean gameOver(Player[] players){
+        if(isWinner(players[0]) || isWinner(players[1]) || board.isFull()){
             return true;
         }
         return false;
     }
-    boolean isWinner(Board b, Player p){
-        if(checkRow(b,p) || checkCol(b,p) || checkDiagRL(b,p) || checkDiagLR(b,p)){
+    boolean isWinner(Player p){
+        if(checkRow(p) || checkCol(p) || checkDiagRL(p) || checkDiagLR(p)){
             return true;
         }
         return false;
     }
-    boolean checkRow(Board b, Player p){
+    boolean checkRow(Player p){
         boolean win = false;
-        for(int i = 0; i < b.getRow(); i++) {
-            for(int j = 0; j < b.getCol(); j++){
-                if (b.getMark(b.getRow() * i + j) == p.getMark()) {
+        for(int i = 0; i < board.getRow(); i++) {
+            for(int j = 0; j < board.getCol(); j++){
+                if (board.getMark(board.getRow() * i + j) == p.getMark()) {
                     win = true;
                 }
                 else {
@@ -52,11 +51,11 @@ public class TTTGame {
         }
         return false;
     }
-    boolean checkCol(Board b, Player p){
+    boolean checkCol(Player p){
         boolean win = false;
-        for(int i = 0; i < b.getCol(); i++) {
-            for(int j = 0; j < b.getRow(); j++){
-                if (b.getMark(b.getRow() * j + i) == p.getMark()) {
+        for(int i = 0; i < board.getCol(); i++) {
+            for(int j = 0; j < board.getRow(); j++){
+                if (board.getMark(board.getRow() * j + i) == p.getMark()) {
                     win = true;
                 }
                 else {
@@ -70,11 +69,11 @@ public class TTTGame {
         }
         return false;
     }
-    boolean checkDiagRL(Board b, Player p){
+    boolean checkDiagRL(Player p){
         boolean win = false;
         int count = 0;
-        for(int i = b.getRow() - 1; i >= 0; i--) {
-            if (b.getMark(b.getRow() * i + count) == p.getMark()) {
+        for(int i = board.getRow() - 1; i >= 0; i--) {
+            if (board.getMark(board.getRow() * i + count) == p.getMark()) {
                 win = true;
             }
             else {
@@ -88,10 +87,10 @@ public class TTTGame {
         }
         return false;
     }
-    boolean checkDiagLR(Board b, Player p){
+    boolean checkDiagLR(Player p){
         boolean win = false;
-        for(int i = 0; i < b.getRow(); i++) {
-            if (b.getMark(b.getRow() * i + i) == p.getMark()) {
+        for(int i = 0; i < board.getRow(); i++) {
+            if (board.getMark(board.getRow() * i + i) == p.getMark()) {
                 win = true;
             }
             else {
@@ -104,34 +103,75 @@ public class TTTGame {
         }
         return false;
     }
+    int validateRow(int r, Player p, Scanner s){
+        while(r >= board.getRow() || r < 0){
+            System.out.println("Invalid input, try again");
+            System.out.print(p.getName() + ", please select a row number (0-" + (board.getRow() - 1) +"): ");
+            r = s.nextInt();
+        }
+        return r;
+    }
+    int validateCol(int c, Player p, Scanner s){
+        while(c >= board.getCol() || c < 0){
+            System.out.println("Invalid input, try again");
+            System.out.print(p.getName() + ", please select a row number (0-" + (board.getCol() - 1) +"): ");
+            c = s.nextInt();
+        }
+        return c;
+    }
+    void turn(Player p){
+        int in_row = 0;
+        int in_col = 0;
 
+        Scanner s = new Scanner(System.in);
+        System.out.print(p.getName() + ", please select a row number (0-" + (board.getRow() - 1) +"): ");
+        in_row = validateRow(s.nextInt(), p, s);
 
+        System.out.print(p.getName() + ", please select a col number (0-" + (board.getCol() - 1) +"): ");
+        in_col = validateCol(s.nextInt(), p, s);
+
+        if(!board.makeMove(in_row, in_col, p.getMark())){
+            System.out.println("Invalid input (row = " + in_row + ", column = " + in_col + ")");
+            System.out.println("Please try again");
+            turn(p);
+        }
+        else{
+            board.print();
+        }
+    }
+    void setPlayer(){
+        for(int i = 0; i < players.length; i++){
+            Player p = new Player("Player " + (i+1), marks[i]);
+            players[i] = p;
+        }
+    }
+    void switchPlayers(){
+        Player temp = players[1] ;
+        players[1] = players[0];
+        players[0] = temp;
+    }
     public Board getBoard() {
         return board;
     }
 
-    public void setBoard(int r, int c, String name) {
-        board = new Board(r,c,name);
-    }
-    public TTTGame() {
-
+    public void setBoard() {
+        this.board = new Board(row,col,name);
     }
 
-    void start(Board b){
-        setPlayer("Player X", "X");
-        setPlayer("Player O", "O");
-        b.print();
+    void start(){
+        board.print();
 
-        while(!gameOver(b,p1,p2)){
-            p1.turn(b);
-            if(isWinner(b,p1)){
-                System.out.println(p1.getName() + " wins!");
-                break;
-            }
-            p2.turn(b);
-            if(isWinner(b,p2)){
-                System.out.println(p1.getName() + " wins!");
-                break;
+        while(!gameOver(players)){
+            for(int i = 0; i < players.length; i++){
+                turn(players[i]);
+                if(isWinner(players[i])){
+                    System.out.println(players[i].getName() + " wins!");
+                    break;
+                }
+                if(board.isFull()){
+                    System.out.println(board.getName() + " board is now full, tied game, game over.");
+                    break;
+                }
             }
         }
     }
