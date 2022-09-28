@@ -2,177 +2,157 @@ package TTT_Phase1;
 import java.util.*;
 
 public class TTTGame {
-    Player[] players = new Player[2];
+    private APlayer[] players = new APlayer[2];
     private String[] marks = {"X", "O"};
     private int row = 3;
     private int col = 3;
     private String name = "Tic Tac Toe";
-    Board board = new Board();
+    private int indexCurrPlayer = -1;
+    private IBoard board;
+    private int scoreToWin = 3;
 
     public TTTGame() {
-        setPlayer();
+        setPlayers();
         setBoard();
-        start();
     }
     public TTTGame(int row, int col){
         this.row = row;
         this.col = col;
-        setPlayer();
+        setPlayers();
         setBoard();
-        start();
     }
-    boolean gameOver(Player[] players){
+    void setPlayers(){
+        Scanner in = new Scanner(System.in);
+        for(int i = 0; i < players.length; i++){
+            System.out.println("Player " + (i + 1) + ", please enter if you want to be a human player (y/n): ");
+            String playerType = in.nextLine();
+            while(!playerType.equals("Y") && !playerType.equals("N") && !playerType.equals("y") && !playerType.equals("n")){
+                System.out.println("Invalid input, " + playerType + " try again: ");
+                playerType = in.nextLine();
+            }
+            if(playerType.equals("y") || playerType.equals("y")){
+                HumanPlayer hp = new HumanPlayer("Player " + (i + 1), marks[i]);
+                players[i] = hp;
+            }
+            else{
+                ComputerPlayer cp = new ComputerPlayer("Player " + (i+1), marks[i]);
+                players[i] = cp;
+            }
+        }
+    }
+    private void setBoard() {
+        this.board = new Board(row,col,name);
+    }
+    public void setBoard(IBoard board) {
+        System.out.println("The Other board will be used.");
+        this.board = board;
+    }
+    boolean gameOver(APlayer[] players){
         if(isWinner(players[0]) || isWinner(players[1]) || board.isFull()){
             return true;
         }
         return false;
     }
-    boolean isWinner(Player p){
+    boolean isWinner(APlayer p){
         if(checkRow(p) || checkCol(p) || checkDiagRL(p) || checkDiagLR(p)){
             return true;
         }
         return false;
     }
-    boolean checkRow(Player p){
-        boolean win = false;
+    boolean checkRow(APlayer p){
+        int score = 0;
         for(int i = 0; i < board.getRow(); i++) {
             for(int j = 0; j < board.getCol(); j++){
-                if (board.getMark(board.getRow() * i + j) == p.getMark()) {
-                    win = true;
-                }
-                else {
-                    win = false;
+                if(!board.getMark(i,j).equals(p.getMark())) {
                     break;
                 }
+                score++;
             }
-            if(win){
+            if(score == scoreToWin){
                 return true;
             }
+            score = 0;
         }
         return false;
     }
-    boolean checkCol(Player p){
-        boolean win = false;
+    boolean checkCol(APlayer p){
+        int score = 0;
         for(int i = 0; i < board.getCol(); i++) {
             for(int j = 0; j < board.getRow(); j++){
-                if (board.getMark(board.getRow() * j + i) == p.getMark()) {
-                    win = true;
-                }
-                else {
-                    win = false;
+                if(!board.getMark(j, i).equals(p.getMark())) {
                     break;
                 }
+                score++;
             }
-            if(win){
+            if(score == scoreToWin){
                 return true;
             }
+            score = 0;
         }
         return false;
     }
-    boolean checkDiagRL(Player p){
-        boolean win = false;
-        int count = 0;
+    boolean checkDiagRL(APlayer p){
+        int score = 0;
         for(int i = board.getRow() - 1; i >= 0; i--) {
-            if (board.getMark(board.getRow() * i + count) == p.getMark()) {
-                win = true;
-            }
-            else {
-                win = false;
+            if(!board.getMark(i, board.getCol() - 1 - i).equals(p.getMark())){
                 break;
             }
-            count++;
+            score++;
         }
-        if(win){
+        if(score == scoreToWin){
             return true;
         }
         return false;
     }
-    boolean checkDiagLR(Player p){
-        boolean win = false;
+    boolean checkDiagLR(APlayer p){
+        int score = 0;
         for(int i = 0; i < board.getRow(); i++) {
-            if (board.getMark(board.getRow() * i + i) == p.getMark()) {
-                win = true;
-            }
-            else {
-                win = false;
+            if(!board.getMark(i, i).equals(p.getMark())){
                 break;
             }
+            score++;
         }
-        if(win){
+        if(score == scoreToWin){
             return true;
         }
         return false;
     }
-    int validateRow(int r, Player p, Scanner s){
-        while(r >= board.getRow() || r < 0){
-            System.out.println("Invalid input, try again");
-            System.out.print(p.getName() + ", please select a row number (0-" + (board.getRow() - 1) +"): ");
-            r = s.nextInt();
-        }
-        return r;
-    }
-    int validateCol(int c, Player p, Scanner s){
-        while(c >= board.getCol() || c < 0){
-            System.out.println("Invalid input, try again");
-            System.out.print(p.getName() + ", please select a row number (0-" + (board.getCol() - 1) +"): ");
-            c = s.nextInt();
-        }
-        return c;
-    }
-    void turn(Player p){
-        int in_row = 0;
-        int in_col = 0;
 
-        Scanner s = new Scanner(System.in);
-        System.out.print(p.getName() + ", please select a row number (0-" + (board.getRow() - 1) +"): ");
-        in_row = validateRow(s.nextInt(), p, s);
-
-        System.out.print(p.getName() + ", please select a col number (0-" + (board.getCol() - 1) +"): ");
-        in_col = validateCol(s.nextInt(), p, s);
-
-        if(!board.makeMove(in_row, in_col, p.getMark())){
-            System.out.println("Invalid input (row = " + in_row + ", column = " + in_col + ")");
-            System.out.println("Please try again");
-            turn(p);
+    void switchPlayers(){
+        if(indexCurrPlayer == -1 || indexCurrPlayer == 1){
+            indexCurrPlayer = 0;
         }
         else{
-            board.print();
+            indexCurrPlayer = 1;
         }
     }
-    void setPlayer(){
-        for(int i = 0; i < players.length; i++){
-            Player p = new Player("Player " + (i+1), marks[i]);
-            players[i] = p;
-        }
-    }
-    void switchPlayers(){
-        Player temp = players[1] ;
-        players[1] = players[0];
-        players[0] = temp;
-    }
-    public Board getBoard() {
-        return board;
-    }
 
-    public void setBoard() {
-        this.board = new Board(row,col,name);
-    }
 
+    /**
+     * 1 - Print message to start the game
+     * 2 - Select the player
+     * 3 - Player needs to make move by selecting a row and col from the board
+     * 4 - Board will check the availability of the box
+     * 5 - If available, set the location for the mark
+     * 6 - Otherwise, ask user to repeat step 3
+     * 7 - Print the updated board
+     * 8 - Check if there is a winner or the board is full (stopping point)
+     * 9 - Repeat step 2 if there is no winner
+     */
     void start(){
-        board.print();
+        System.out.println("Game started...");
 
-        while(!gameOver(players)){
-            for(int i = 0; i < players.length; i++){
-                turn(players[i]);
-                if(isWinner(players[i])){
-                    System.out.println(players[i].getName() + " wins!");
-                    break;
-                }
-                if(board.isFull()){
-                    System.out.println(board.getName() + " board is now full, tied game, game over.");
-                    break;
-                }
-            }
+        do{
+            switchPlayers();
+            players[indexCurrPlayer].turn(board);
+        }
+        while(!gameOver(players));
+
+        if(isWinner(players[indexCurrPlayer])){
+            System.out.println(players[indexCurrPlayer].getName() + " wins!");
+        }
+        else{
+            System.out.println(board.getName() + " board is now full, game over.");
         }
     }
 }

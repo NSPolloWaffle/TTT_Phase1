@@ -1,11 +1,22 @@
 package TTT_Phase1;
 
-import java.util.*;
+public class ComputerPlayer extends APlayer{
 
-public class ComputerPlayer extends Player{
-    private int difficulty;
-    public static int randomNumber(){
-        return (int)(Math.random() * 10);
+    public ComputerPlayer() {}
+    public ComputerPlayer(String name, String mark) {
+        super(name, mark);
     }
-
+    private int randomNumber(int range){
+        return (int)(Math.random() * range);
+    }
+    void turn(IBoard board){
+        int row = randomNumber(board.getRow());
+        int col = randomNumber(board.getCol());
+        if(!board.makeMove(row, col, this.getMark())){
+            this.turn(board);
+        }
+        else{
+            board.print();
+        }
+    }
 }

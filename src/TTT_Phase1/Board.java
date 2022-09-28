@@ -1,6 +1,6 @@
 package TTT_Phase1;
 
-public class Board {
+public class Board implements IBoard{
     private int row;
     private int col;
     private Box[] boxes;
@@ -14,10 +14,10 @@ public class Board {
         this.setName(name);
         this.setSize(row,col);
     }
-    String getMark(int index){
-        return boxes[index].getPlaceHolder();
+    public String getMark(int row, int col){
+        return boxes[row * this.getRow() + col].getPlaceHolder();
     }
-    private void setSize(int row, int col) {
+    public void setSize(int row, int col) {
         if(row < 3 || col < 3) {
             System.out.println("Min board size is 3");
         }
@@ -28,19 +28,20 @@ public class Board {
         }
     }
 
-    private void init(){
+    public void init(){
         boxes = new Box[row * col];
         for(int i = 0; i < boxes.length; i++){
             Box b = new Box(i / col, i % col);
             boxes[i] = b;
         }
+        print();
     }
 
-    boolean makeMove(int r, int c, String mark){
+    public boolean makeMove(int r, int c, String mark){
         return boxes[(r * 3) + c].setPlaceHolder(mark);
     }
 
-    void print(){
+    public void print(){
         System.out.println("Printing the " + name + " board...");
         for(int i = 0; i < boxes.length; i++){
             if(i % col == 0 && i/col != 0) {
@@ -50,7 +51,7 @@ public class Board {
         }
         System.out.println();
     }
-    boolean isFull(){
+    public boolean isFull(){
         for(int i = 0; i < boxes.length; i++){
             if(boxes[i].isAvailable()){
                 return false;
@@ -75,14 +76,14 @@ public class Board {
         this.col = col;
     }
 
-    public String getName() {
+    public String getName(){
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name){
         this.name = name;
     }
-    public int getBoxesLength(){
-        return this.boxes.length;
+    public void reset(){
+
     }
 }
